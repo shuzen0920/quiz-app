@@ -140,7 +140,7 @@
   </div>
 
   <script>
-    const apiResultsUrl = 'http://localhost:3000/api/quiz-results';
+    const apiResultsUrl = '/api/quiz-results';
 
     const translations = {
       en: {
@@ -334,9 +334,9 @@
         let questionApiUrl;
         const questionCount = 10;
         if (state.category) {
-            questionApiUrl = `http://localhost:3000/api/questions/category/${encodeURIComponent(state.category)}/random?count=${questionCount}&lang=${state.lang}`;
+            questionApiUrl = `/api/questions/category/${encodeURIComponent(state.category)}/random?count=${questionCount}&lang=${state.lang}`;
         } else {
-            questionApiUrl = `http://localhost:3000/api/questions/random?count=${questionCount}&lang=${state.lang}`;
+            questionApiUrl = `/api/questions/random?count=${questionCount}&lang=${state.lang}`;
         }
 
         const res = await fetch(questionApiUrl);
