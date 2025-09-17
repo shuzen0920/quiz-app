@@ -1,0 +1,653 @@
+[
+  {
+    "id": 1,
+    "question": {
+      "zh": "工作前的第一件事是什麼？",
+      "en": "What's the first thing you should do before starting work?"
+    },
+    "options": {
+      "zh": [
+        "喝咖啡",
+        "檢查環境",
+        "打瞌睡"
+      ],
+      "en": [
+        "Drink coffee",
+        "Check the environment",
+        "Take a nap"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship"
+  },
+  {
+    "id": 2,
+    "question": {
+      "zh": "如果工具和物料亂放，結果會是什麼？",
+      "en": "What happens if tools and materials are scattered around?"
+    },
+    "options": {
+      "zh": [
+        "變身工具忍者",
+        "工作卡住",
+        "立馬超速完成"
+      ],
+      "en": [
+        "You become a tool ninja",
+        "Work gets stuck",
+        "Everything finishes super fast"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship"
+  },
+  {
+    "id": 3,
+    "question": {
+      "zh": "不清楚施工內容時，你會怎麼做？",
+      "en": "What will you do if you're unsure about the task details?"
+    },
+    "options": {
+      "zh": [
+        "假裝很懂",
+        "問個明白",
+        "猛翻SOP"
+      ],
+      "en": [
+        "Pretend to know",
+        "Ask for clarification",
+        "Flip through the SOP frantically"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship"
+  },
+  {
+    "question": {
+      "zh": "工具有點損壞，但還能用，你會怎麼選？",
+      "en": "If a tool is slightly damaged but still usable, what will you do?"
+    },
+    "options": {
+      "zh": [
+        "將就用",
+        "立馬換新",
+        "祈禱不壞掉"
+      ],
+      "en": [
+        "Use it anyway",
+        "Replace it immediately",
+        "Pray it doesn't break"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship",
+    "id": 4
+  },
+  {
+    "question": {
+      "zh": "如果物料數量不足，你會怎麼處理？",
+      "en": "What will you do if there aren’t enough materials?"
+    },
+    "options": {
+      "zh": [
+        "湊合",
+        "馬上補",
+        "偷用別的"
+      ],
+      "en": [
+        "Make do",
+        "Replenish immediately",
+        "Borrow from somewhere else"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship",
+    "id": 5
+  },
+  {
+    "question": {
+      "zh": "包裝上看不清料號，怎麼辦？",
+      "en": "If the packaging lacks a part number, what should you do?"
+    },
+    "options": {
+      "zh": [
+        "猜一猜",
+        "直接用",
+        "確認清楚"
+      ],
+      "en": [
+        "Take a guess",
+        "Use it anyway",
+        "Confirm it first"
+      ]
+    },
+    "answerIndex": 2,
+    "category": "Craftmanship",
+    "id": 6
+  },
+  {
+    "question": {
+      "zh": "工作開始前，隊員的任務怎麼分配？",
+      "en": "Before starting work, how should tasks be assigned?"
+    },
+    "options": {
+      "zh": [
+        "抽籤",
+        "各自為戰",
+        "清楚分派"
+      ],
+      "en": [
+        "Draw lots",
+        "Every person for themselves",
+        "Assign clearly"
+      ]
+    },
+    "answerIndex": 2,
+    "category": "Craftmanship",
+    "id": 7
+  },
+  {
+    "question": {
+      "zh": "Coach的“超級必殺技”是什麼？",
+      "en": "What's Coach's 'ultimate skill'?"
+    },
+    "options": {
+      "zh": [
+        "跳過步驟",
+        "眼觀六路",
+        "每一步都看清楚"
+      ],
+      "en": [
+        "Skipping steps",
+        "Keeping an eagle eye",
+        "Checking every step clearly"
+      ]
+    },
+    "answerIndex": 2,
+    "category": "Craftmanship",
+    "id": 8
+  },
+  {
+    "question": {
+      "zh": "螺絲和零件用錯會怎樣？",
+      "en": "What happens if you use the wrong screws or parts?"
+    },
+    "options": {
+      "zh": [
+        "變成藝術品",
+        "工作報銷",
+        "結果未知"
+      ],
+      "en": [
+        "It becomes an art piece",
+        "Work gets ruined",
+        "Results unknown"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship",
+    "id": 9
+  },
+  {
+    "question": {
+      "zh": "如果遇到客戶的突發需求，你會？",
+      "en": "If a customer makes a sudden request, you will?"
+    },
+    "options": {
+      "zh": [
+        "微笑解釋",
+        "開始抱怨",
+        "迅速澄清問題"
+      ],
+      "en": [
+        "Smile and explain",
+        "Start complaining",
+        "Clarify the issue and proceed"
+      ]
+    },
+    "answerIndex": 2,
+    "category": "Craftmanship",
+    "id": 10
+  },
+  {
+    "question": {
+      "zh": "你怎麼讓工作區域看起來像新的一樣？",
+      "en": "How do you make the workspace look brand new?"
+    },
+    "options": {
+      "zh": [
+        "魔法",
+        "時刻保持清潔",
+        "事後收拾"
+      ],
+      "en": [
+        "Magic",
+        "Keep it clean at all times",
+        "Clean up afterward"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship",
+    "id": 11
+  },
+  {
+    "question": {
+      "zh": "工作進度該怎麼記錄？",
+      "en": "When should you record work progress?"
+    },
+    "options": {
+      "zh": [
+        "隨便寫寫",
+        "實時詳實記錄",
+        "等到最後再補"
+      ],
+      "en": [
+        "Whenever",
+        "Real-time and detailed",
+        "At the end"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship",
+    "id": 12
+  },
+  {
+    "question": {
+      "zh": "操作水閥前，你應該？",
+      "en": "Before operating the water valve, you should?"
+    },
+    "options": {
+      "zh": [
+        "偷偷來",
+        "先通知客戶",
+        "先拍拍照"
+      ],
+      "en": [
+        "Do it sneakily",
+        "Inform the customer",
+        "Take a selfie first"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship",
+    "id": 13
+  },
+  {
+    "question": {
+      "zh": "工具不對或不夠，接下來怎麼辦？",
+      "en": "If tools aren’t right or sufficient, what should you do?"
+    },
+    "options": {
+      "zh": [
+        "硬著頭皮用",
+        "立即停下檢查",
+        "換一個姿勢"
+      ],
+      "en": [
+        "Tough it out",
+        "Stop and check immediately",
+        "Change your posture"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship",
+    "id": 14
+  },
+  {
+    "question": {
+      "zh": "什麼是“4眼檢查”？",
+      "en": "What is '4 eyes check'?"
+    },
+    "options": {
+      "zh": [
+        "四個眼睛同時檢查",
+        "兩人一起確認",
+        "眼睛要大大睜開"
+      ],
+      "en": [
+        "Four eyes checking simultaneously",
+        "Two people checking together",
+        "Eyes wide open"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship",
+    "id": 15
+  },
+  {
+    "question": {
+      "zh": "一個人作業時，誰來幫忙檢查？",
+      "en": "If working alone, who helps you check?"
+    },
+    "options": {
+      "zh": [
+        "自己",
+        "向空氣求助",
+        "客戶"
+      ],
+      "en": [
+        "Myself",
+        "The air",
+        "The customer"
+      ]
+    },
+    "answerIndex": 2,
+    "category": "Craftmanship",
+    "id": 16
+  },
+  {
+    "question": {
+      "zh": "有疑慮的步驟，你會？",
+      "en": "When in doubt about a step, you will?"
+    },
+    "options": {
+      "zh": [
+        "繼續做",
+        "問清楚再做",
+        "隨意跳過"
+      ],
+      "en": [
+        "Continue anyway",
+        "Ask and clarify first",
+        "Skip it"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship",
+    "id": 17
+  },
+  {
+    "question": {
+      "zh": "交接工作時，你要？",
+      "en": "When handing off work, what should you do?"
+    },
+    "options": {
+      "zh": [
+        "點頭哈腰",
+        "面對面交接",
+        "傳紙條"
+      ],
+      "en": [
+        "Nod and smile",
+        "Face-to-face handover",
+        "Send a note"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship",
+    "id": 18
+  },
+  {
+    "question": {
+      "zh": "交接前，你會再次確認什麼？",
+      "en": "Before handover, what will you recheck?"
+    },
+    "options": {
+      "zh": [
+        "昨晚吃了什麼",
+        "工作進度和logbook",
+        "明天的行程"
+      ],
+      "en": [
+        "What you ate last night",
+        "Work progress and logbook",
+        "Tomorrow’s schedule"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship",
+    "id": 19
+  },
+  {
+    "question": {
+      "zh": "完成工作後，你會怎麼處理剩下的工具？",
+      "en": "After finishing work, how do you handle tools?"
+    },
+    "options": {
+      "zh": [
+        "留著當紀念",
+        "清點並收好",
+        "全部扔掉"
+      ],
+      "en": [
+        "Keep them as souvenirs",
+        "Count and store them",
+        "Throw them all away"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship",
+    "id": 20
+  },
+  {
+    "question": {
+      "zh": "物料用剩的部分怎麼辦？",
+      "en": "What do you do with leftover materials?"
+    },
+    "options": {
+      "zh": [
+        "全部丟掉",
+        "儲存或處理",
+        "藏起來下次用"
+      ],
+      "en": [
+        "Throw them all away",
+        "Store or process them",
+        "Hide them for later"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship",
+    "id": 21
+  },
+  {
+    "question": {
+      "zh": "工作區域清理後應該怎麼做？",
+      "en": "After cleaning the workspace, what should you do?"
+    },
+    "options": {
+      "zh": [
+        "走人",
+        "驗收一遍",
+        "等風吹乾淨"
+      ],
+      "en": [
+        "Leave immediately",
+        "Inspect it once more",
+        "Wait for the wind to blow it clean"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship",
+    "id": 22
+  },
+  {
+    "question": {
+      "zh": "紀錄保存的用處是什麼？",
+      "en": "What’s the point of saving records?"
+    },
+    "options": {
+      "zh": [
+        "當做回憶",
+        "未來工作參考",
+        "展示給朋友"
+      ],
+      "en": [
+        "For memories",
+        "Future work reference",
+        "To show off to friends"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship",
+    "id": 23
+  },
+  {
+    "question": {
+      "zh": "為什麼要定期回顧SOP？",
+      "en": "Why should you regularly review the SOP?"
+    },
+    "options": {
+      "zh": [
+        "炫耀一下",
+        "發現潛在改進",
+        "打發時間"
+      ],
+      "en": [
+        "To brag",
+        "Spot potential improvements",
+        "Pass the time"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship",
+    "id": 24
+  },
+  {
+    "question": {
+      "zh": "誰對自己使用的工具負責？",
+      "en": "Who’s responsible for the tools they use?"
+    },
+    "options": {
+      "zh": [
+        "小組長",
+        "自己",
+        "工具自己"
+      ],
+      "en": [
+        "The team leader",
+        "Yourself",
+        "The tools themselves"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship",
+    "id": 25
+  },
+  {
+    "question": {
+      "zh": "管理團隊的主要責任是什麼？",
+      "en": "What’s the management team’s main responsibility?"
+    },
+    "options": {
+      "zh": [
+        "安排聚餐",
+        "監督SOP執行",
+        "做大家的朋友"
+      ],
+      "en": [
+        "Organizing lunch",
+        "Ensuring SOP execution",
+        "Being everyone’s friend"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship",
+    "id": 26
+  },
+  {
+    "question": {
+      "zh": "壓力太大或不舒服，你應該？",
+      "en": "When feeling stressed or unwell, you should?"
+    },
+    "options": {
+      "zh": [
+        "默默忍受",
+        "說出來",
+        "去睡一覺"
+      ],
+      "en": [
+        "Keep it to yourself",
+        "Speak up",
+        "Take a nap"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship",
+    "id": 27
+  },
+  {
+    "question": {
+      "zh": "工作記錄需要在什麼時候再次核對？",
+      "en": "When should you double-check the work record?"
+    },
+    "options": {
+      "zh": [
+        "交接前",
+        "吃飯後",
+        "工作完畢後"
+      ],
+      "en": [
+        "Before handover",
+        "After eating",
+        "When work is finished"
+      ]
+    },
+    "answerIndex": 0,
+    "category": "Craftmanship",
+    "id": 28
+  },
+  {
+    "question": {
+      "zh": "工作區域打掃完畢後，還有什麼要做？",
+      "en": "After cleaning the workspace, what’s next?"
+    },
+    "options": {
+      "zh": [
+        "開派對",
+        "確認工具和物料放回原位",
+        "自拍留念"
+      ],
+      "en": [
+        "Throw a party",
+        "Confirm tools and materials are back in place",
+        "Take a selfie"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship",
+    "id": 29
+  },
+  {
+    "question": {
+      "zh": "工具和物料數量不對，你會？",
+      "en": "If the quantities of tools and materials are incorrect, what will you do?"
+    },
+    "options": {
+      "zh": [
+        "假裝沒事",
+        "馬上報告",
+        "給它一個新的名字"
+      ],
+      "en": [
+        "Pretend it’s fine",
+        "Report immediately",
+        "Give it a new name"
+      ]
+    },
+    "answerIndex": 1,
+    "category": "Craftmanship",
+    "id": 30
+  },
+  {
+    "question": {
+      "zh": "CQN是代表什麼意思？",
+      "en": "What does CQN mean?"
+    },
+    "options": {
+      "zh": [
+        "客訴",
+        "來客數",
+        "西門町"
+      ],
+      "en": [
+        "Customer complaint",
+        "Number of visitors",
+        "Ximending"
+      ]
+    },
+    "answerIndex": 0,
+    "category": "CQN",
+    "id": 31
+  }
+]

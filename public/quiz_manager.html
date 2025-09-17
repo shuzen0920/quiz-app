@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>題庫管理與答題紀錄</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 20px; background-color: #f4f7f6; color: #333; }
+    h1, h2 { color: #333; }
+    h2 { margin-top: 40px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+    input, button, textarea, select { margin: 5px 0; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 14px; }
+    label { font-weight: bold; margin-top: 10px; display: block; }
+    button { cursor: pointer; background-color: #007bff; color: white; border-color: #007bff; transition: background-color 0.2s; }
+    button:hover { background-color: #0056b3; }
+    button:disabled { background-color: #ccc; cursor: not-allowed; }
+    .btn-danger { background-color: #dc3545; border-color: #dc3545; }
+    .btn-danger:hover { background-color: #c82333; }
+    .btn-secondary { background-color: #6c757d; border-color: #6c757d; }
+    .btn-secondary:hover { background-color: #5a6268; }
+    .btn-small { padding: 5px 8px; font-size: 12px; margin: 0 2px; }
+    .section { border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 8px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    table { border-collapse: collapse; width: 100%; margin-top: 15px; }
+    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+    th { cursor: pointer; background-color: #f2f2f2; user-select: none; position: relative; }
+    th.sort-asc::after { content: ' ▲'; color: #007bff; }
+    th.sort-desc::after { content: ' ▼'; color: #007bff; }
+    .pagination { margin-top: 15px; }
+    .pagination button { margin-right: 5px; background-color: #6c757d; }
+    .pagination button:disabled { background-color: #e9ecef; color: #6c757d; border-color: #dee2e6; }
+    .filter-bar { margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+    .question-item { padding: 15px; border-bottom: 1px solid #eee; }
+    .question-item:last-child { border-bottom: none; }
+    .edit-form { background-color: #fffde7; padding: 20px; border: 1px solid #fdd835; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <h1>題庫管理與答題紀錄</h1>
+
+  <div class="section">
+    <h2 id="formTitle">新增題目</h2>
+    <form id="addForm">
+      <input type="hidden" name="id">
+      <label for="question_zh">題目 (中文):</label>
+      <input type="text" id="question_zh" name="question_zh" placeholder="中文題目" required style="width: 98%;">
+      <label for="question_en">Question (English):</label>
+      <input type="text" id="question_en" name="question_en" placeholder="English Question" required style="width: 98%;">
+      <label for="options_zh">選項 (中文，用逗號分隔):</label>
+      <input type="text" id="options_zh" name="options_zh" placeholder="選項A,選項B,選項C" required style="width: 98%;">
+      <label for="options_en">Options (English, comma-separated):</label>
+      <input type="text" id="options_en" name="options_en" placeholder="Option A,Option B,Option C" required style="width: 98%;">
+      <label for="answerIndex">正確答案索引 (從0開始):</label>
+      <input type="number" id="answerIndex" name="answerIndex" placeholder="Correct Answer Index (starts from 0)" required min="0">
+      <label for="category">分類:</label>
+      <input type="text" id="category" name="category" placeholder="Category" required>
+      <br><br>
+      <button type="submit">儲存新題目</button>
+    </form>
+  </div>
+
+  <div class="section">
+    <h2>題目列表</h2>
+    <div class="filter-bar">
+        <label for="categoryFilter">篩選分類:</label>
+        <select id="categoryFilter" onchange="filterQuestionsByCategory()"></select>
+    </div>
+    <div id="questionList">載入中...</div>
+    <div class="pagination" id="questionPagination"></div>
+  </div>
+
+  <div class="section">
+    <h2>答題紀錄</h2>
+    <div class="filter-bar">
+        <label for="resultSearchInput">搜尋姓名或工號：</label>
+        <input type="text" id="resultSearchInput" oninput="filterResults()">
+    </div>
+    <button onclick="loadResults()">刷新紀錄</button>
+    <button onclick="clearAllResults()" class="btn-danger">清空所有紀錄</button>
+    <button onclick="exportCSV()">匯出 CSV (目前篩選)</button>
+    <button onclick="exportExcel()">匯出 Excel (目前篩選)</button>
+    <button onclick="window.print()">列印/匯出 PDF</button>
+    <table id="resultTable">
+      <thead>
+        <tr>
+          <th data-sort-key="name" onclick="sortResults('name')">姓名</th>
+          <th data-sort-key="id" onclick="sortResults('id')">工號</th>
+          <th data-sort-key="score" onclick="sortResults('score')">分數</th>
+          <th data-sort-key="rate" onclick="sortResults('rate')">正確率</th>
+          <th data-sort-key="category" onclick="sortResults('category')">類別</th>
+          <th data-sort-key="lang" onclick="sortResults('lang')">語言</th>
+          <th data-sort-key="time" onclick="sortResults('time')">時間</th>
+          <th data-sort-key="ip" onclick="sortResults('ip')">IP 位址</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="9">載入紀錄中...</td></tr>
+      </tbody>
+    </table>
+    <div class="pagination" id="resultPagination"></div>
+  </div>
+
+  <script>
+    const apiQuestions = 'http://localhost:3000/api/questions';
+    const apiResults = 'http://localhost:3000/api/quiz-results';
+
+    // --- State Management ---
+    let allQuestions = [];
+    let filteredQuestions = [];
+    let questionCurrentPage = 1;
+    const questionsPerPage = 5;
+    let currentCategoryFilter = 'all';
+    let editingQuestionId = null;
+
+    let allResultData = [];
+    let filteredResultData = [];
+    let resultCurrentPage = 1;
+    const resultsPageSize = 10;
+    let resultSortState = {};
+
+    // --- Question Management ---
+
+    async function loadQuestions() {
+      try {
+        const res = await fetch(apiQuestions);
+        if (!res.ok) throw new Error(`無法取得題庫: ${res.statusText}`);
+        allQuestions = await res.json();
+        allQuestions.sort((a, b) => {
+            if (a.category < b.category) return -1;
+            if (a.category > b.category) return 1;
+            return a.id - b.id;
+        });
+        renderCategoryFilter();
+        applyQuestionFilters();
+      } catch (error) {
+        console.error(error);
+        document.getElementById('questionList').innerHTML = `<p style="color: red;">${error.message}</p>`;
+      }
+    }
+
+    function renderCategoryFilter() {
+        const categories = ['all', ...new Set(allQuestions.map(q => q.category))];
+        const filterSelect = document.getElementById('categoryFilter');
+        filterSelect.innerHTML = categories.map(cat => `<option value="${cat}">${cat === 'all' ? '所有分類' : cat}</option>`).join('');
+        filterSelect.value = currentCategoryFilter;
+    }
+
+    function filterQuestionsByCategory() {
+        currentCategoryFilter = document.getElementById('categoryFilter').value;
+        questionCurrentPage = 1;
+        applyQuestionFilters();
+    }
+
+    function applyQuestionFilters() {
+        filteredQuestions = (currentCategoryFilter === 'all')
+            ? [...allQuestions]
+            : allQuestions.filter(q => q.category === currentCategoryFilter);
+        editingQuestionId = null;
+        renderQuestionList();
+    }
+
+    function renderQuestionList() {
+        const listDiv = document.getElementById('questionList');
+        const start = (questionCurrentPage - 1) * questionsPerPage;
+        const end = start + questionsPerPage;
+        const questionsToRender = filteredQuestions.slice(start, end);
+
+        if (questionsToRender.length === 0) {
+            listDiv.innerHTML = '<p>沒有符合條件的題目。</p>';
+        } else {
+            listDiv.innerHTML = questionsToRender.map(q => (q.id === editingQuestionId) ? renderEditForm(q) : renderDisplayItem(q)).join('');
+        }
+        renderQuestionPagination();
+    }
+
+    function renderDisplayItem(q) {
+        return `
+        <div class="question-item" id="question-${q.id}">
+            <strong>${q.id}. (${q.category})</strong><br>
+            <strong>中:</strong> ${q.question.zh || 'N/A'}<br>
+            <strong>En:</strong> ${q.question.en || 'N/A'}<br>
+            <strong>選項(中):</strong> ${(q.options.zh || []).join(', ')}<br>
+            <strong>Options(En):</strong> ${(q.options.en || []).join(', ')}<br>
+            <em>正確答案索引: ${q.answerIndex}</em><br>
+            <button class="btn-small" onclick="toggleEditMode(${q.id})">原地編輯</button>
+            <button class="btn-small btn-danger" onclick="deleteQuestion(${q.id})">刪除</button>
+        </div>
+        `;
+    }
+
+    function renderEditForm(q) {
+        return `
+        <div class="edit-form" id="question-edit-${q.id}">
+            <h4>正在編輯題目 #${q.id}</h4>
+            <label>題目 (中文):</label>
+            <input type="text" id="edit-question_zh-${q.id}" value="${q.question.zh || ''}" style="width: 98%;">
+            <label>Question (English):</label>
+            <input type="text" id="edit-question_en-${q.id}" value="${q.question.en || ''}" style="width: 98%;">
+            <label>選項 (中文):</label>
+            <input type="text" id="edit-options_zh-${q.id}" value="${(q.options.zh || []).join(', ')}" style="width: 98%;">
+            <label>Options (English):</label>
+            <input type="text" id="edit-options_en-${q.id}" value="${(q.options.en || []).join(', ')}" style="width: 98%;">
+            <label>正確答案索引:</label>
+            <input type="number" id="edit-answerIndex-${q.id}" value="${q.answerIndex}" min="0">
+            <label>分類:</label>
+            <input type="text" id="edit-category-${q.id}" value="${q.category}">
+            <br><br>
+            <button onclick="handleSaveQuestion(${q.id})">儲存變更</button>
+            <button class="btn-secondary" onclick="toggleEditMode(null)">取消</button>
+        </div>
+        `;
+    }
+
+    function renderQuestionPagination() {
+        const paginationDiv = document.getElementById('questionPagination');
+        const totalPages = Math.ceil(filteredQuestions.length / questionsPerPage);
+        paginationDiv.innerHTML = '';
+        if (totalPages <= 1) return;
+
+        for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i;
+            btn.disabled = (i === questionCurrentPage);
+            btn.onclick = () => {
+                questionCurrentPage = i;
+                renderQuestionList();
+            };
+            paginationDiv.appendChild(btn);
+        }
+    }
+
+    function toggleEditMode(id) {
+        editingQuestionId = id;
+        renderQuestionList();
+    }
+
+    async function handleSaveQuestion(id) {
+        const data = {
+            question: {
+              zh: document.getElementById(`edit-question_zh-${id}`).value.trim(),
+              en: document.getElementById(`edit-question_en-${id}`).value.trim()
+            },
+            options: {
+              zh: document.getElementById(`edit-options_zh-${id}`).value.split(',').map(s => s.trim()),
+              en: document.getElementById(`edit-options_en-${id}`).value.split(',').map(s => s.trim())
+            },
+            answerIndex: parseInt(document.getElementById(`edit-answerIndex-${id}`).value, 10),
+            category: document.getElementById(`edit-category-${id}`).value.trim()
+        };
+        
+        if (!data.question.zh || !data.question.en || data.options.zh.length === 0 || data.options.en.length === 0 || isNaN(data.answerIndex) || !data.category) {
+            alert('請填寫所有欄位。');
+            return;
+        }
+        if (data.answerIndex < 0 || data.answerIndex >= data.options.zh.length || data.answerIndex >= data.options.en.length) {
+            alert('正確答案索引無效。請確保中英文選項數量一致，且索引在有效範圍內。');
+            return;
+        }
+
+        try {
+            const res = await fetch(`${apiQuestions}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (!res.ok) throw new Error(`儲存失敗: ${res.statusText}`);
+            await loadQuestions();
+        } catch (error) {
+            console.error(error);
+            alert(`儲存失敗: ${error.message}`);
+        }
+    }
+
+    document.getElementById('addForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const data = {
+            question: { zh: form.question_zh.value.trim(), en: form.question_en.value.trim() },
+            options: { zh: form.options_zh.value.split(',').map(s => s.trim()), en: form.options_en.value.split(',').map(s => s.trim()) },
+            answerIndex: parseInt(form.answerIndex.value, 10),
+            category: form.category.value.trim()
+        };
+        
+        if (!data.question.zh || !data.question.en || data.options.zh.length === 0 || data.options.en.length === 0 || isNaN(data.answerIndex) || !data.category) {
+            alert('請填寫所有欄位。'); return;
+        }
+        if (data.answerIndex < 0 || data.answerIndex >= data.options.zh.length || data.answerIndex >= data.options.en.length) {
+            alert('正確答案索引無效。'); return;
+        }
+        
+        try {
+            const res = await fetch(apiQuestions, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (!res.ok) throw new Error(`新增失敗: ${res.statusText}`);
+            form.reset();
+            await loadQuestions();
+        } catch (error) {
+            console.error(error);
+            alert(`新增失敗: ${error.message}`);
+        }
+    });
+
+    async function deleteQuestion(id) {
+        if (confirm(`確定要刪除題目 #${id} 嗎？此操作無法復原。`)) {
+            try {
+                const res = await fetch(`${apiQuestions}/${id}`, { method: 'DELETE' });
+                if (!res.ok && res.status !== 204) throw new Error(`刪除失敗: ${res.statusText}`);
+                await loadQuestions();
+            } catch (error) {
+                console.error(error);
+                alert(`刪除失敗: ${error.message}`);
+            }
+        }
+    }
+
+    // --- Result Management ---
+
+    async function loadResults() {
+      try {
+        const res = await fetch(apiResults);
+        if (!res.ok) throw new Error(`無法取得答題紀錄: ${res.statusText}`);
+        allResultData = await res.json();
+        allResultData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        filterResults();
+      } catch (error) {
+        console.error(error);
+        document.querySelector('#resultTable tbody').innerHTML = `<tr><td colspan="9" style="color: red;">${error.message}</td></tr>`;
+      }
+    }
+
+    function renderResultTable() {
+      const tbody = document.querySelector('#resultTable tbody');
+      const start = (resultCurrentPage - 1) * resultsPageSize;
+      const paginated = filteredResultData.slice(start, start + resultsPageSize);
+      
+      if (paginated.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="9">沒有符合條件的紀錄。</td></tr>';
+      } else {
+          tbody.innerHTML = paginated.map(r => `
+            <tr>
+              <td>${r.userName || ''}</td>
+              <td>${r.userId || ''}</td>
+              <td>${r.score}/${r.total}</td>
+              <td>${r.correctRate}%</td>
+              <td>${r.category || 'N/A'}</td>
+              <td>${(r.lang || 'N/A').toUpperCase()}</td>
+              <td>${r.timestamp ? new Date(r.timestamp).toLocaleString('zh-TW') : ''}</td>
+              <td>${r.ip || 'N/A'}</td>
+              <td>
+                <button class="btn-small btn-danger" onclick="deleteResult('${r.timestamp}')">刪除此筆</button>
+                <button class="btn-small btn-danger" onclick="deleteUserResults('${r.userId}', '${r.userName}')">刪除此人所有紀錄</button>
+              </td>
+            </tr>
+          `).join('');
+      }
+      renderResultPagination();
+    }
+
+    function renderResultPagination() {
+      const totalPages = Math.ceil(filteredResultData.length / resultsPageSize);
+      const container = document.getElementById('resultPagination');
+      container.innerHTML = '';
+      if (totalPages <= 1) return;
+
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.disabled = (i === resultCurrentPage);
+        btn.onclick = () => { 
+          resultCurrentPage = i; 
+          renderResultTable(); 
+        };
+        container.appendChild(btn);
+      }
+    }
+
+    function filterResults() {
+      const keyword = document.getElementById('resultSearchInput').value.trim().toLowerCase();
+      
+      filteredResultData = !keyword
+        ? [...allResultData]
+        : allResultData.filter(r =>
+            (r.userName && r.userName.toLowerCase().includes(keyword)) ||
+            (r.userId && r.userId.toLowerCase().includes(keyword))
+          );
+      
+      resultCurrentPage = 1;
+      renderResultTable();
+    }
+
+    function sortResults(colKey) {
+      const isAsc = resultSortState[colKey] === 'asc';
+      const direction = isAsc ? -1 : 1;
+
+      filteredResultData.sort((a, b) => {
+        let valA, valB;
+        switch(colKey) {
+          case 'name': valA = a.userName || ''; valB = b.userName || ''; return valA.localeCompare(valB, 'zh-Hans-CN') * direction;
+          case 'id': valA = a.userId || ''; valB = b.userId || ''; return valA.localeCompare(valB) * direction;
+          case 'score': valA = a.score; valB = b.score; return (valA - valB) * direction;
+          case 'rate': valA = a.correctRate; valB = b.correctRate; return (valA - valB) * direction;
+          case 'category': valA = a.category || ''; valB = b.category || ''; return valA.localeCompare(valB) * direction;
+          case 'lang': valA = a.lang || ''; valB = b.lang || ''; return valA.localeCompare(valB) * direction;
+          case 'time': valA = new Date(a.timestamp || 0); valB = new Date(b.timestamp || 0); return (valA - valB) * direction;
+          case 'ip': valA = a.ip || ''; valB = b.ip || ''; return valA.localeCompare(valB) * direction;
+          default: return 0;
+        }
+      });
+
+      resultSortState = { [colKey]: isAsc ? 'desc' : 'asc' };
+      
+      document.querySelectorAll('#resultTable th').forEach(th => {
+          th.classList.remove('sort-asc', 'sort-desc');
+          if (th.dataset.sortKey === colKey) {
+              th.classList.add(isAsc ? 'sort-desc' : 'sort-asc');
+          }
+      });
+
+      resultCurrentPage = 1;
+      renderResultTable();
+    }
+
+    async function clearAllResults() {
+      if (confirm('您確定要刪除所有答題紀錄嗎？此操作無法復原！')) {
+        try {
+          const res = await fetch(apiResults, { method: 'DELETE' });
+          if (!res.ok) throw new Error(`清除失敗: ${res.statusText}`);
+          alert('所有紀錄已成功清除。');
+          await loadResults();
+        } catch (error) {
+          console.error(error);
+          alert(`操作失敗: ${error.message}`);
+        }
+      }
+    }
+
+    async function deleteResult(timestamp) {
+      if (confirm(`您確定要刪除這筆紀錄嗎？\n時間: ${new Date(timestamp).toLocaleString('zh-TW')}`)) {
+        try {
+          const res = await fetch(`${apiResults}/${encodeURIComponent(timestamp)}`, { method: 'DELETE' });
+          if (!res.ok) throw new Error(`刪除失敗: ${res.statusText}`);
+          
+          allResultData = allResultData.filter(r => r.timestamp !== timestamp);
+          filterResults();
+        } catch (error) {
+          console.error(error);
+          alert(`操作失敗: ${error.message}`);
+        }
+      }
+    }
+
+    async function deleteUserResults(userId, userName) {
+      if (!userId) {
+        alert('無法刪除：此紀錄缺少工號 (userId)。');
+        return;
+      }
+      if (confirm(`您確定要刪除使用者 "${userName}" (工號: ${userId}) 的所有紀錄嗎？此操作無法復原！`)) {
+        try {
+          const res = await fetch(`${apiResults}/user/${encodeURIComponent(userId)}`, { method: 'DELETE' });
+          if (!res.ok) throw new Error(`刪除失敗: ${res.statusText}`);
+          
+          allResultData = allResultData.filter(r => r.userId !== userId);
+          filterResults();
+        } catch (error) {
+          console.error(error);
+          alert(`操作失敗: ${error.message}`);
+        }
+      }
+    }
+
+    function exportCSV() {
+      const headers = ["姓名", "工號", "分數", "正確率(%)", "類別", "語言", "時間", "IP位址"];
+      const rows = filteredResultData.map(r => [
+        `"${r.userName || ''}"`, `"${r.userId || ''}"`, `"${r.score}/${r.total}"`, r.correctRate, `"${r.category || ''}"`, `"${r.lang || ''}"`, `"${r.timestamp ? new Date(r.timestamp).toLocaleString('zh-TW') : ''}"`, `"${r.ip || ''}"`
+      ]);
+      
+      let csvContent = "\uFEFF" + headers.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "quiz_results.csv";
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+
+    function exportExcel() {
+      const ws_data = [["姓名", "工號", "分數", "正確率(%)", "類別", "語言", "時間", "IP位址"]];
+      filteredResultData.forEach(r => {
+        ws_data.push([ r.userName, r.userId, `${r.score}/${r.total}`, r.correctRate, r.category || '', r.lang || '', r.timestamp ? new Date(r.timestamp).toLocaleString('zh-TW') : '', r.ip || '' ]);
+      });
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(ws_data);
+      XLSX.utils.book_append_sheet(wb, ws, "答題紀錄");
+      XLSX.writeFile(wb, "quiz_results.xlsx");
+    }
+
+    // --- Initial Load ---
+    loadQuestions();
+    loadResults();
+  </script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>固定題目問答</title>
+</head>
+<body>
+  <h1>固定題目問答</h1>
+
+  <!-- 使用者身份輸入 -->
+  <div id="userInfo">
+    <label>工號：<input type="text" id="userId" required></label><br>
+    <label>姓名：<input type="text" id="userName" required></label><br>
+    <button onclick="startQuiz()">開始答題</button>
+  </div>
+
+  <!-- 題目區 -->
+  <form id="quizForm" style="display:none;"></form>
+  <button id="submitBtn" onclick="submitQuiz()" style="display:none;">提交答案</button>
+  <div id="result"></div>
+
+  <script>
+    const questions = [
+      {
+        question: "以下哪一項是 ESG 的三大核心領域之一？",
+        options: ["經濟", "環境", "科技", "教育"],
+        answerIndex: 1
+      },
+      {
+        question: "關稅的主要目的是什麼？",
+        options: ["促進出口", "保護本國產業", "增加外資", "降低物價"],
+        answerIndex: 1
+      },
+      {
+        question: "ISO 9001 是針對哪一方面的標準？",
+        options: ["資訊安全", "品質管理", "環境保護", "職業安全"],
+        answerIndex: 1
+      }
+    ];
+
+    let userAnswers = [];
+
+    function startQuiz() {
+      const userId = document.getElementById('userId').value.trim();
+      const userName = document.getElementById('userName').value.trim();
+      if (!userId || !userName) {
+        alert('請輸入工號與姓名');
+        return;
+      }
+
+      document.getElementById('userInfo').style.display = 'none';
+      document.getElementById('quizForm').style.display = 'block';
+      document.getElementById('submitBtn').style.display = 'inline';
+
+      const form = document.getElementById('quizForm');
+      form.innerHTML = '';
+
+      questions.forEach((q, index) => {
+        const optionsHtml = q.options.map((opt, i) => `
+          <label>
+            <input type="radio" name="q${index}" value="${i}">
+            ${opt}
+          </label><br>
+        `).join('');
+
+        form.innerHTML += `
+          <div>
+            <strong>Q${index + 1}: ${q.question}</strong><br>
+            ${optionsHtml}
+          </div><hr>
+        `;
+      });
+    }
+
+    function submitQuiz() {
+      const form = document.getElementById('quizForm');
+      let score = 0;
+
+      questions.forEach((q, index) => {
+        const selected = form[`q${index}`].value;
+        userAnswers[index] = parseInt(selected);
+        if (parseInt(selected) === q.answerIndex) score++;
+      });
+
+      const percent = ((score / questions.length) * 100).toFixed(1);
+      const result = document.getElementById('result');
+      result.innerHTML = `
+        <h2>答題結果</h2>
+        <p>工號：${document.getElementById('userId').value}</p>
+        <p>姓名：${document.getElementById('userName').value}</p>
+        <p>答對題數：${score} / ${questions.length}</p>
+        <p>正確率：${percent}%</p>
+      `;
+
+      document.getElementById('submitBtn').style.display = 'none';
+
+      // 傳送結果到後端
+      fetch('http://localhost:3000/api/quiz-results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: document.getElementById('userId').value,
+          userName: document.getElementById('userName').value,
+          score: score,
+          total: questions.length,
+          correctRate: parseFloat(percent),
+          answers: userAnswers,
+          questions: questions.map(q => ({ question: q.question, options: q.options }))
+        })
+      });
+    }
+  </script>
+</body>
+</html>

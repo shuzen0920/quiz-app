@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>答題詳細紀錄（含搜尋）</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    h2 { margin-top: 30px; }
+    .record { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+    .question { margin: 10px 0; }
+    .correct { color: green; }
+    .wrong { color: red; }
+  </style>
+</head>
+<body>
+  <h1>答題詳細紀錄</h1>
+  <label>搜尋姓名或工號：<input type="text" id="searchInput" oninput="filterRecords()"></label>
+  <button onclick="loadDetails()">重新載入</button>
+  <div id="records"></div>
+
+  <script>
+    let allData = [];
+
+    async function loadDetails() {
+      const res = await fetch('http://localhost:3000/api/quiz-results');
+      allData = await res.json();
+      renderRecords(allData);
+    }
+
+    function filterRecords() {
+      const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+      const filtered = allData.filter(r =>
+        r.userName.toLowerCase().includes(keyword) ||
+        r.userId.toLowerCase().includes(keyword)
+      );
+      renderRecords(filtered);
+    }
+
+    function renderRecords(data) {
+      const container = document.getElementById('records');
+      container.innerHTML = '';
+
+      data.forEach((entry, idx) => {
+        const div = document.createElement('div');
+        div.className = 'record';
+        div.innerHTML = `
+          <h2>${entry.userName}（${entry.userId}）</h2>
+          <p>分數：${entry.score} / ${entry.total}，正確率：${entry.correctRate}%</p>
+          <p>時間：${entry.timestamp || 'N/A'}</p>
+        `;
+
+        if (entry.questions && entry.answers) {
+          entry.questions.forEach((q, i) => {
+            const userAns = entry.answers[i];
+            const correctAns = q.options[q.answerIndex];
+            const userAnsText = q.options[userAns] || '<未作答>';
+            const isCorrect = userAns === q.answerIndex;
+            div.innerHTML += `
+              <div class="question">
+                <strong>Q${i + 1}: ${q.question}</strong><br>
+                你的答案：<span class="${isCorrect ? 'correct' : 'wrong'}">${userAnsText}</span><br>
+                正確答案：<span class="correct">${correctAns}</span>
+              </div>
+            `;
+          });
+        }
+
+        container.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>

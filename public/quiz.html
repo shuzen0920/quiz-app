@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>問答挑戰</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f0f2f5;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      background-color: #fff;
+      padding: 20px 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 700px;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #0056b3;
+    }
+    input[type="text"] {
+      width: calc(100% - 22px);
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      color: #fff;
+      background-color: #007bff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      margin-top: 10px;
+    }
+    button:hover:not(:disabled) {
+      background-color: #0056b3;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    #langSelection button {
+        margin-bottom: 10px;
+    }
+    #quizForm .question-block {
+      margin-bottom: 25px;
+      padding: 15px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+    }
+    #quizForm label {
+      display: block;
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      cursor: pointer;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+    #quizForm label:hover {
+      background-color: #f5f5f5;
+    }
+    .error-message {
+      color: red;
+      text-align: center;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    #resultContainer h2 {
+      color: #28a745;
+    }
+    .result-summary p {
+      font-size: 1.1em;
+      line-height: 1.6;
+    }
+    .correct-answer {
+      border-color: #28a745 !important;
+      background-color: #e9f7ef;
+      color: #155724;
+    }
+    .wrong-answer {
+      border-color: #dc3545 !important;
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    .indicator {
+        font-weight: bold;
+        float: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 data-lang-key="quizTitle">問答挑戰</h1>
+
+    <!-- 語言選擇區 -->
+    <div id="langSelection">
+        <h2>請選擇語言 / Please Select Language</h2>
+        <button onclick="selectLang('zh')">中文</button>
+        <button onclick="selectLang('en')">English</button>
+    </div>
+
+    <!-- 身份輸入區 -->
+    <div id="userInfo" style="display:none;">
+      <h2 data-lang-key="userInfoTitle">請輸入您的資訊</h2>
+      <label><span data-lang-key="userIdLabel">工號</span>：<input type="text" id="userId" required></label>
+      <label><span data-lang-key="userNameLabel">姓名</span>：<input type="text" id="userName" required></label>
+      <button onclick="startQuiz()" data-lang-key="startQuizBtn">開始答題</button>
+      <div id="startError" class="error-message"></div>
+    </div>
+
+    <!-- 題目區 -->
+    <div id="quizContainer" style="display:none;">
+      <form id="quizForm"></form>
+      <button id="submitBtn" onclick="submitQuiz()" data-lang-key="submitBtn">提交答案</button>
+      <div id="validationMessage" class="error-message"></div>
+    </div>
+
+    <!-- 結果區 -->
+    <div id="resultContainer" style="display:none;">
+      <!-- 結果將會動態注入此處 -->
+    </div>
+  </div>
+
+  <script>
+    const apiResultsUrl = 'http://localhost:3000/api/quiz-results';
+
+    const translations = {
+      en: {
+        quizTitle: "Quiz Challenge",
+        userInfoTitle: "Please Enter Your Information",
+        userIdLabel: "Employee ID",
+        userNameLabel: "Name",
+        startQuizBtn: "Start Quiz",
+        startError: "Please enter Employee ID and Name",
+        loadingMsg: "Loading questions...",
+        submitBtn: "Submit Answers",
+        validationMsg: (count) => `You have ${count} unanswered questions!`,
+        resultTitle: "Quiz Results",
+        resultUserId: "Employee ID",
+        resultUserName: "Name",
+        resultScore: "Score",
+        resultRate: "Correct Rate",
+        tryAgainBtn: "Try Again",
+        fetchError: (status) => `Failed to load questions, server error: ${status}`,
+        noQuestionsError: "No questions available in the question bank.",
+        genericError: (msg) => `Error: ${msg}`,
+        correctIndicator: " Correct Answer",
+        yourChoiceIndicator: " Your Choice",
+        perfectScoreError: "You have already achieved a 100% score for this category and cannot retake the quiz.",
+        statusCheckError: "Could not verify your eligibility. Please try again later.",
+        perfectScoreMessage: "Congratulations! You've achieved a perfect score!",
+        notYouPrompt: (name) => `Not ${name || 'you'}? <a href='#' onclick='bypassIpCheckAndStart(event)'>Click here to take the quiz.</a>`
+      },
+      zh: {
+        quizTitle: "問答挑戰",
+        userInfoTitle: "請輸入您的資訊",
+        userIdLabel: "工號",
+        userNameLabel: "姓名",
+        startQuizBtn: "開始答題",
+        startError: "請輸入工號與姓名",
+        loadingMsg: "題目載入中...",
+        submitBtn: "提交答案",
+        validationMsg: (count) => `您還有 ${count} 題未作答！`,
+        resultTitle: "答題結果",
+        resultUserId: "工號",
+        resultUserName: "姓名",
+        resultScore: "答對題數",
+        resultRate: "正確率",
+        tryAgainBtn: "再試一次",
+        fetchError: (status) => `無法載入題目，伺服器錯誤: ${status}`,
+        noQuestionsError: "題庫中沒有題目可供測驗。",
+        genericError: (msg) => `錯誤: ${msg}`,
+        correctIndicator: " 正確答案",
+        yourChoiceIndicator: " 您的選擇",
+        perfectScoreError: "您已在此分類達到100%正確率，無需重複作答。",
+        statusCheckError: "無法驗證您的作答資格，請稍後再試。",
+        perfectScoreMessage: "恭喜！您已完美通關！",
+        notYouPrompt: (name) => `不是 ${name || '您'} 嗎？<a href='#' onclick='bypassIpCheckAndStart(event)'>點此開始作答。</a>`
+      }
+    };
+
+    const state = {
+      questions: [],
+      user: { id: '', name: '' },
+      isSubmitted: false,
+      lang: 'zh',
+      category: null // Will be populated from URL
+    };
+
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    function showInitialPerfectScoreScreen(lang, userName) {
+        const t = translations[lang];
+        updateUIText(lang);
+        document.getElementById('langSelection').style.display = 'none';
+        document.getElementById('userInfo').style.display = 'none';
+        document.getElementById('quizContainer').style.display = 'none';
+        const resultContainer = document.getElementById('resultContainer');
+        resultContainer.innerHTML = `
+          <div class="result-summary">
+            <h2 style="font-size: 3em;">🎉</h2>
+            <p style="text-align:center; font-weight:bold; font-size: 1.2em; color: #28a745;">
+              ${t.perfectScoreMessage}
+            </p>
+            <p style="text-align:center; color: #666;">
+              ${t.perfectScoreError}
+            </p>
+            <p style="text-align:center; font-size: 0.9em; margin-top: 20px;">
+              ${t.notYouPrompt(userName)}
+            </p>
+          </div>
+        `;
+        resultContainer.style.display = 'block';
+    }
+
+    function bypassIpCheckAndStart(event) {
+        event.preventDefault();
+        document.getElementById('resultContainer').style.display = 'none';
+        document.getElementById('langSelection').style.display = 'block';
+        document.title = "問答挑戰";
+    }
+
+    async function checkInitialStatus() {
+      state.category = getQueryParam('category');
+      // Only perform the IP check if a category is specified in the URL
+      if (!state.category) {
+        return;
+      }
+
+      try {
+        const res = await fetch(`${apiResultsUrl}/status/ip?category=${encodeURIComponent(state.category)}`);
+        if (!res.ok) {
+          console.warn('IP status check failed, proceeding normally.');
+          return;
+        }
+
+        const data = await res.json();
+        if (data.canTakeQuiz === false) {
+          const lang = data.lang || 'zh';
+          const userName = data.userName || '';
+          showInitialPerfectScoreScreen(lang, userName);
+        }
+      } catch (error) {
+        console.error('Initial status check failed:', error);
+      }
+    }
+
+    function shuffleArray(array) {
+      let currentIndex = array.length, randomIndex;
+      while (currentIndex !== 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+      }
+      return array;
+    }
+
+    function selectLang(lang) {
+        state.lang = lang;
+        document.getElementById('langSelection').style.display = 'none';
+        document.getElementById('userInfo').style.display = 'block';
+        updateUIText(lang);
+    }
+
+    function updateUIText(lang) {
+        const t = translations[lang];
+        document.querySelectorAll('[data-lang-key]').forEach(el => {
+            const key = el.dataset.langKey;
+            if (t[key]) {
+                el.textContent = t[key];
+            }
+        });
+        document.title = t.quizTitle;
+    }
+
+    async function startQuiz() {
+      state.user.id = document.getElementById('userId').value.trim();
+      state.user.name = document.getElementById('userName').value.trim();
+      const startError = document.getElementById('startError');
+      const t = translations[state.lang];
+
+      if (!state.user.id || !state.user.name) {
+        startError.textContent = t.startError;
+        return;
+      }
+      startError.textContent = '';
+
+      try {
+        let statusApiUrl = `${apiResultsUrl}/status/${encodeURIComponent(state.user.id)}`;
+        if (state.category) {
+            statusApiUrl += `?category=${encodeURIComponent(state.category)}`;
+        }
+        const statusRes = await fetch(statusApiUrl);
+        if (!statusRes.ok) throw new Error('Server status check failed');
+        const statusData = await statusRes.json();
+        if (statusData.canTakeQuiz === false) {
+          startError.textContent = t.perfectScoreError;
+          return;
+        }
+      } catch (error) {
+        console.error('Error checking quiz status:', error);
+        startError.textContent = t.statusCheckError;
+        return;
+      }
+
+      document.getElementById('userInfo').style.display = 'none';
+      const quizContainer = document.getElementById('quizContainer');
+      const quizForm = document.getElementById('quizForm');
+      quizContainer.style.display = 'block';
+      quizForm.innerHTML = `<p>${t.loadingMsg}</p>`;
+
+      try {
+        let questionApiUrl;
+        const questionCount = 10;
+        if (state.category) {
+            questionApiUrl = `http://localhost:3000/api/questions/category/${encodeURIComponent(state.category)}/random?count=${questionCount}&lang=${state.lang}`;
+        } else {
+            questionApiUrl = `http://localhost:3000/api/questions/random?count=${questionCount}&lang=${state.lang}`;
+        }
+
+        const res = await fetch(questionApiUrl);
+        if (!res.ok) throw new Error(t.fetchError(res.status));
+        
+        state.questions = await res.json();
+        if (state.questions.length === 0) throw new Error(t.noQuestionsError);
+
+        quizForm.innerHTML = '';
+
+        state.questions.forEach((q, index) => {
+          const options = [...q.options];
+          const correctAnswerText = options[q.answerIndex];
+          shuffleArray(options);
+          const newAnswerIndex = options.indexOf(correctAnswerText);
+          q.shuffledOptions = options;
+          q.correctShuffledIndex = newAnswerIndex;
+
+          const optionsHtml = options.map((opt, i) => `
+            <label>
+              <input type="radio" name="q${index}" value="${i}" required>
+              ${opt}
+            </label>
+          `).join('');
+
+          quizForm.innerHTML += `
+            <div class="question-block">
+              <strong>Q${index + 1}: ${q.question}</strong><br>
+              ${optionsHtml}
+            </div>
+          `;
+        });
+      } catch (error) {
+        quizForm.innerHTML = `<p class="error-message">${t.genericError(error.message)}</p>`;
+        document.getElementById('submitBtn').style.display = 'none';
+      }
+    }
+
+    function submitQuiz() {
+      if (state.isSubmitted) return;
+
+      const form = document.getElementById('quizForm');
+      const validationMessage = document.getElementById('validationMessage');
+      const t = translations[state.lang];
+      
+      const totalAnswered = form.querySelectorAll('input[type="radio"]:checked').length;
+      if (totalAnswered < state.questions.length) {
+        validationMessage.textContent = t.validationMsg(state.questions.length - totalAnswered);
+        return;
+      }
+      validationMessage.textContent = '';
+      state.isSubmitted = true;
+
+      let score = 0;
+      const userAnswers = [];
+
+      state.questions.forEach((q, index) => {
+        const selectedInput = form.querySelector(`input[name="q${index}"]:checked`);
+        const selectedIndex = parseInt(selectedInput.value, 10);
+        userAnswers.push(selectedIndex);
+
+        const isCorrect = selectedIndex === q.correctShuffledIndex;
+        if (isCorrect) {
+          score++;
+        }
+
+        const optionLabels = form.querySelectorAll(`input[name="q${index}"]`);
+        optionLabels.forEach((radio, i) => {
+          const label = radio.parentElement;
+          radio.disabled = true;
+
+          if (i === q.correctShuffledIndex) {
+            label.classList.add('correct-answer');
+            const indicatorSpan = document.createElement('span');
+            indicatorSpan.className = 'indicator';
+            indicatorSpan.textContent = '✅' + t.correctIndicator;
+            label.appendChild(indicatorSpan);
+          } 
+          else if (i === selectedIndex && !isCorrect) {
+            label.classList.add('wrong-answer');
+            const indicatorSpan = document.createElement('span');
+            indicatorSpan.className = 'indicator';
+            indicatorSpan.textContent = '❌' + t.yourChoiceIndicator;
+            label.appendChild(indicatorSpan);
+          }
+        });
+      });
+
+      document.getElementById('submitBtn').disabled = true;
+
+      const percent = parseFloat(((score / state.questions.length) * 100).toFixed(1));
+      const resultContainer = document.getElementById('resultContainer');
+      
+      let actionHtml = '';
+      if (score < state.questions.length) {
+        actionHtml = `<button onclick="resetQuiz()" data-lang-key="tryAgainBtn">${t.tryAgainBtn}</button>`;
+      } else {
+        actionHtml = `<p style="text-align:center; font-weight:bold; color: #28a745;">${t.perfectScoreMessage}</p>`;
+      }
+
+      resultContainer.innerHTML = `
+        <div class="result-summary">
+          <h2 data-lang-key="resultTitle">${t.resultTitle}</h2>
+          <p><strong>${t.resultUserId}：</strong>${state.user.id}</p>
+          <p><strong>${t.resultUserName}：</strong>${state.user.name}</p>
+          <p><strong>${t.resultScore}：</strong>${score} / ${state.questions.length}</p>
+          <p><strong>${t.resultRate}：</strong>${percent}%</p>
+        </div>
+        ${actionHtml}
+      `;
+      resultContainer.style.display = 'block';
+      resultContainer.scrollIntoView({ behavior: 'smooth' });
+
+      sendResultsToServer(score, userAnswers, percent);
+    }
+
+    async function sendResultsToServer(score, answers, correctRate) {
+      try {
+        await fetch(apiResultsUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: state.user.id,
+            userName: state.user.name,
+            score: score,
+            total: state.questions.length,
+            correctRate: correctRate,
+            answers: answers,
+            lang: state.lang,
+            category: state.category
+          })
+        });
+      } catch (error) {
+        console.error('傳送結果時發生網路錯誤:', error);
+      }
+    }
+
+    function resetQuiz() {
+      window.location.reload();
+    }
+
+    window.addEventListener('DOMContentLoaded', checkInitialStatus);
+  </script>
+</body>
+</html>
