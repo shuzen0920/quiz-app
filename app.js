@@ -3,6 +3,14 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const questionsRouter = require('./routes/questions');
 const quizResultsRouter = require('./routes/quizResults');
+const dotenv = require('dotenv');
+const connectDB = require('./config/db');
+
+// 載入 .env 檔案中的環境變數
+dotenv.config();
+
+// 連線到 MongoDB
+connectDB();
 
 const app = express();
 app.use(cors());
