@@ -1,14 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const QuizResult = require('../models/QuizResult');
-
-// 輔助函數：取得乾淨的 IPv4 位址
-const getCleanIPv4 = (ip) => {
-  if (!ip) return ip;
-  if (ip.substr(0, 7) === "::ffff:") return ip.substr(7);
-  if (ip === '::1') return '127.0.0.1';
-  return ip;
-};
+// 從共用 utils 模組引入輔助函數
+const { getCleanIPv4 } = require('../utils');
 
 // POST / - 儲存一筆新的答題結果
 router.post('/', async (req, res) => {

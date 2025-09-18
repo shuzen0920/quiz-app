@@ -7,8 +7,6 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // 載入所有 Mongoose 模型
-//const Prize = require('./models/Prize');
-//const Draw = require('./models/Draw');
 const Question = require('./models/Question');
 const QuizResult = require('./models/QuizResult');
 
@@ -22,54 +20,52 @@ mongoose.connect(process.env.MONGO_URI, {
 });
 
 // 定義舊資料檔案的路徑
-//const prizesPath = path.join(__dirname, 'data', 'prizes.json');
-//const drawsPath = path.join(__dirname, 'data', 'draws.json');
 const questionsPath = path.join(__dirname, 'data', 'questions.json');
 const quizResultsPath = path.join(__dirname, 'data', 'quiz_results.json');
 
 // 匯入資料到資料庫的函數
 const importData = async () => {
+  let exitCode = 0;
   try {
     // 讀取所有 JSON 檔案
-    //const prizes = readJsonFile(prizesPath, []);
-    //const draws = readJsonFile(drawsPath, []);
     const questions = readJsonFile(questionsPath, []);
     const quizResults = readJsonFile(quizResultsPath, []);
 
     // 為了避免重複匯入，我們先清空相關的 collection
     console.log('正在清空舊資料...');
-    //await Prize.deleteMany();
-    //await Draw.deleteMany();
     await Question.deleteMany();
     await QuizResult.deleteMany();
 
     // 使用 insertMany 進行高效的批次匯入
     console.log('正在匯入新資料...');
-    //await Prize.insertMany(prizes);
-    //await Draw.insertMany(draws);
     await Question.insertMany(questions);
     await QuizResult.insertMany(quizResults);
 
     console.log('✅ 資料匯入成功！');
-    process.exit();
   } catch (error) {
     console.error(`❌ 匯入錯誤: ${error}`);
-    process.exit(1);
+    exitCode = 1;
+  } finally {
+    await mongoose.connection.close();
+    console.log('資料庫連線已關閉。');
+    process.exit(exitCode);
   }
 };
 
 // 從資料庫刪除所有資料的函數
 const deleteData = async () => {
+  let exitCode = 0;
   try {
-    //await Prize.deleteMany();
-    //await Draw.deleteMany();
     await Question.deleteMany();
     await QuizResult.deleteMany();
     console.log('✅ 資料已成功刪除！');
-    process.exit();
   } catch (error) {
     console.error(`❌ 刪除錯誤: ${error}`);
-    process.exit(1);
+    exitCode = 1;
+  } finally {
+    await mongoose.connection.close();
+    console.log('資料庫連線已關閉。');
+    process.exit(exitCode);
   }
 };
 
@@ -82,4 +78,3 @@ if (process.argv[2] === '-i') {
   console.log('請使用 -i 參數匯入資料，或使用 -d 參數刪除資料。');
   process.exit();
 }
-

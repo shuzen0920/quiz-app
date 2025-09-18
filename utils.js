@@ -32,7 +32,26 @@ function writeJsonFile(filePath, data) {
   }
 }
 
+/**
+ * Cleans an IP address string to return a standard IPv4 format.
+ * @param {string} ip - The original IP address.
+ * @returns {string} The cleaned IPv4 address.
+ */
+function getCleanIPv4(ip) {
+  if (!ip) return ip;
+  // Handle IPv6-mapped IPv4 addresses, e.g., '::ffff:192.168.1.1' -> '192.168.1.1'
+  if (ip.substr(0, 7) === "::ffff:") {
+    return ip.substr(7);
+  }
+  // Handle localhost IPv6 representation
+  if (ip === '::1') {
+    return '127.0.0.1';
+  }
+  return ip;
+}
+
 module.exports = {
   readJsonFile,
   writeJsonFile,
+  getCleanIPv4,
 };

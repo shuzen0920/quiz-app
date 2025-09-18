@@ -191,13 +191,13 @@
         return `
         <div class="edit-form" id="question-edit-${q.id}">
             <h4>正在編輯題目 #${q.id}</h4>
-            <label>題目 (中文):</label>
+            <label>題目 (中):</label>
             <input type="text" id="edit-question_zh-${q.id}" value="${q.question.zh || ''}" style="width: 98%;">
-            <label>Question (English):</label>
+            <label>題目 (En):</label>
             <input type="text" id="edit-question_en-${q.id}" value="${q.question.en || ''}" style="width: 98%;">
-            <label>選項 (中文):</label>
+            <label>選項 (中):</label>
             <input type="text" id="edit-options_zh-${q.id}" value="${(q.options.zh || []).join(', ')}" style="width: 98%;">
-            <label>Options (English):</label>
+            <label>選項 (En):</label>
             <input type="text" id="edit-options_en-${q.id}" value="${(q.options.en || []).join(', ')}" style="width: 98%;">
             <label>正確答案索引:</label>
             <input type="number" id="edit-answerIndex-${q.id}" value="${q.answerIndex}" min="0">
