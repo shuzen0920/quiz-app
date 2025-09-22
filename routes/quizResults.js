@@ -9,7 +9,7 @@ router.post('/', async (req, res) => {
   try {
     const newResultData = {
       ...req.body,
-      ip: getCleanIPv4(req.ip),
+      ip: getCleanIPv4((req.headers['x-forwarded-for'] || '').split(',').shift() || req.socket.remoteAddress),
     };
     const newResult = await QuizResult.create(newResultData);
     res.status(201).json({ message: '答題結果已儲存', data: newResult });
@@ -30,10 +30,10 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /status/ip - 根據 IP 和分類檢查是否已完美通關
+// GET /status/ip - 根據 external IP 和分類檢查是否已完美通關
 router.get('/status/ip', async (req, res) => {
   try {
-    const userIp = getCleanIPv4(req.ip);
+    const userIp = getCleanIPv4((req.headers['x-forwarded-for'] || '').split(',').shift() || req.socket.remoteAddress);
     const { category } = req.query;
 
     const perfectScoreRecord = await QuizResult.findOne({
